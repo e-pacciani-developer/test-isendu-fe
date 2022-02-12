@@ -25,3 +25,7 @@ export function formatDates(
     'HH:mm'
   )}`;
 }
+
+export function setCurrentDate(): string {
+  return format(new Date(), 'yyyy-MM-dd');
+}

@@ -3,7 +3,8 @@ export interface Appointment {
   startAt: Date;
   endAt: Date;
   userId: string;
-  description: string;
+  notes: string;
+  type: string;
 }
 
 export interface GetAppointmentsDTO {
