@@ -33,6 +33,18 @@ export async function createAppointment(
   return null;
 }
 
+export async function deleteAppointment(
+  appointment: Appointment
+): Promise<boolean> {
+  const response = await axios.delete(
+    `http://localhost:5000/api/appointments/${appointment.id}`
+  );
+
+  const data = await response.data;
+
+  return data;
+}
+
 export function formatDates(
   startAt: Date | string,
   endAt: Date | string

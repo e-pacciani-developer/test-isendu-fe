@@ -5,41 +5,38 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalFooter,
-  ModalHeader,
   ModalOverlay,
   Text,
 } from '@chakra-ui/react';
 
-interface ErrorModalProps {
+interface ConfirmModalProps {
   message: string;
-  onClose: () => void;
   isOpen: boolean;
+  onClose: () => void;
+  confirmFn: () => void;
 }
 
-const ErrorModal: React.VFC<ErrorModalProps> = ({
+const ConfirmModal: React.VFC<ConfirmModalProps> = ({
   isOpen,
-  onClose,
   message,
+  onClose,
+  confirmFn,
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Error</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Text fontSize={'xl'}>{message}</Text>
         </ModalBody>
 
         <ModalFooter style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button
-            variant="ghost"
-            colorScheme="red"
-            mr={3}
-            onClick={onClose}
-            size="sm"
-          >
-            Close
+          <Button variant="ghost" mr={3} onClick={onClose} size="sm">
+            Cancel
+          </Button>
+          <Button colorScheme="red" mr={3} onClick={confirmFn} size="sm">
+            Confirm
           </Button>
         </ModalFooter>
       </ModalContent>
@@ -47,4 +44,4 @@ const ErrorModal: React.VFC<ErrorModalProps> = ({
   );
 };
 
-export default ErrorModal;
+export default ConfirmModal;

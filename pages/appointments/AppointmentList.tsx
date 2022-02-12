@@ -1,9 +1,11 @@
 import { Box, Button, Flex, List, Text, useDisclosure } from '@chakra-ui/react';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 import { Appointment } from '../../models/appointment';
 import AddAppointmentModal from './AddAppointmentModal';
 import AppointmentItem from './AppointmentItem';
-
+import { deleteAppointment } from './appointments.helpers';
+import ConfirmModal from '../../components/ConfirmModal';
 interface AppointmentsListProps {
   _appointments: Appointment[];
   userId: string;
@@ -21,6 +23,12 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
         (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
       )
     );
+  };
+
+  const cancelAppointment = async (appointment: Appointment) => {
+    await deleteAppointment(appointment);
+    toast.success('Appointment cancelled successfully');
+    setAppointments(appointments.filter(a => a.id !== appointment.id));
   };
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -48,7 +56,11 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
           </Button>
           <List marginTop={'1rem'}>
             {appointments.map(appointment => (
-              <AppointmentItem key={appointment.id} appointment={appointment} />
+              <AppointmentItem
+                key={appointment.id}
+                appointment={appointment}
+                cancelAppointment={cancelAppointment}
+              />
             ))}
           </List>
         </Flex>
