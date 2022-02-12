@@ -1,4 +1,5 @@
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import AppointmentsList from './AppointmentList';
 import { getUserAppointments } from './appointments.helpers';
 
 export const getServerSideProps = async (
@@ -18,14 +19,7 @@ const Appointments: React.VFC<
 > = ({ userId, appointments }) => {
   return (
     <>
-      <h1>Appointments for {userId}</h1>;
-      <ul>
-        {appointments.data.map(appointment => (
-          <li key={appointment.id}>
-            {appointment.description} - {appointment.userId}
-          </li>
-        ))}
-      </ul>
+      <AppointmentsList appointments={appointments.data}></AppointmentsList>
     </>
   );
 };

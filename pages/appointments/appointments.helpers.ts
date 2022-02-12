@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { GetAppointmentsDTO } from '../../models/appointment';
+import { format } from 'date-fns';
 
 export async function getUserAppointments(
   page: number,
@@ -13,4 +14,14 @@ export async function getUserAppointments(
   const appointments = await response.data;
 
   return appointments;
+}
+
+export function formatDates(
+  startAt: Date | string,
+  endAt: Date | string
+): string {
+  return `${format(new Date(startAt), 'dd/MM/yyyy HH:mm')} - ${format(
+    new Date(endAt),
+    'HH:mm'
+  )}`;
 }
