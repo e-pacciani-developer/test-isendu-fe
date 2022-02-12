@@ -1,17 +1,12 @@
 import {
   Box,
-  Button,
-  Container,
-  Flex,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
   Text,
-  VStack,
 } from '@chakra-ui/react';
-import { Select } from '@chakra-ui/react';
 import { InferGetServerSidePropsType } from 'next';
 import { getAllUsers } from './login.helpers';
 import SignIn from './SignIn';
@@ -32,7 +27,7 @@ const LoginPage: React.VFC<
       borderWidth="1px"
       borderRadius="lg"
       padding={'2rem'}
-      background="cyan.200"
+      bg="white"
     >
       <Text
         marginBottom={'1rem'}
