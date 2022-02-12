@@ -17,32 +17,75 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { VisitTypes } from '../../constants/visit-type';
-import { setCurrentDate } from './appointments.helpers';
+import { Appointment, CreateAppointmentDTO } from '../../models/appointment';
+import {
+  createAppointment,
+  generateStartAndEndDates,
+  setCurrentDate,
+} from './appointments.helpers';
+import { toast } from 'react-toastify';
 
 interface AddAppointmentProps {
   isOpen: boolean;
   onClose: () => void;
+  addNewAppointmentToList: (appointment: Appointment) => void;
+  userId: string;
+}
+
+interface AddAppointmentFormFields {
+  date: string;
+  startTime: string;
+  endTime: string;
+  type: string;
+  notes: string;
 }
 
 const AddAppointmentModal: React.VFC<AddAppointmentProps> = ({
   isOpen,
   onClose,
+  addNewAppointmentToList,
+  userId,
 }) => {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm();
-  const onSubmit = (data: any) => console.log(data);
+  const { register, handleSubmit } = useForm();
+  const onSubmit = handleSubmit(async data => {
+    const formData = data as AddAppointmentFormFields;
+
+    const [startAt, endAt] = generateStartAndEndDates(
+      formData.date,
+      formData.startTime,
+      formData.endTime
+    );
+
+    const appointment: CreateAppointmentDTO = {
+      startAt,
+      endAt,
+      userId,
+      type: formData.type,
+      notes: formData.notes,
+    };
+
+    const newAppointment = await createAppointment(appointment);
+
+    if (newAppointment) {
+      addNewAppointmentToList(newAppointment);
+      toast.success('Appointment created successfully');
+
+      onClose();
+    }
+  });
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      isCentered
+      motionPreset="slideInBottom"
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Add Appointment</ModalHeader>
         <ModalCloseButton />
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={onSubmit}>
           <ModalBody>
             <VStack>
               <FormControl>
@@ -50,7 +93,7 @@ const AddAppointmentModal: React.VFC<AddAppointmentProps> = ({
                 <Input
                   id="date"
                   defaultValue={setCurrentDate()}
-                  {...register('selectedDate', { required: true })}
+                  {...register('date', { required: true })}
                   type="date"
                 />
               </FormControl>

@@ -18,9 +18,10 @@ const Appointments: React.VFC<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ userId, appointments }) => {
   return (
-    <>
-      <AppointmentsList appointments={appointments.data}></AppointmentsList>
-    </>
+    <AppointmentsList
+      _appointments={appointments.data}
+      userId={userId}
+    ></AppointmentsList>
   );
 };
 

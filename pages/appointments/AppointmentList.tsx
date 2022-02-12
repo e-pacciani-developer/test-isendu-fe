@@ -1,32 +1,30 @@
-import {
-  Box,
-  Button,
-  Container,
-  Flex,
-  List,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Spacer,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, List, Text, useDisclosure } from '@chakra-ui/react';
+import { useState } from 'react';
 import { Appointment } from '../../models/appointment';
 import AddAppointmentModal from './AddAppointmentModal';
 import AppointmentItem from './AppointmentItem';
 
 interface AppointmentsListProps {
-  appointments: Appointment[];
+  _appointments: Appointment[];
+  userId: string;
 }
 
 const AppointmentsList: React.VFC<AppointmentsListProps> = ({
-  appointments,
+  _appointments,
+  userId,
 }) => {
+  const [appointments, setAppointments] = useState(_appointments);
+
+  const addNewAppointmentToList = (appointment: Appointment) => {
+    setAppointments(
+      [...appointments, appointment].sort(
+        (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
+      )
+    );
+  };
+
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <>
       <Box
@@ -55,7 +53,12 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
           </List>
         </Flex>
       </Box>
-      <AddAppointmentModal isOpen={isOpen} onClose={onClose} />
+      <AddAppointmentModal
+        isOpen={isOpen}
+        onClose={onClose}
+        addNewAppointmentToList={addNewAppointmentToList}
+        userId={userId}
+      />
     </>
   );
 };

@@ -7,6 +7,8 @@ export interface Appointment {
   type: string;
 }
 
+export type CreateAppointmentDTO = Omit<Appointment, 'id'>;
+
 export interface GetAppointmentsDTO {
   data: Appointment[];
   hasMore: boolean;
