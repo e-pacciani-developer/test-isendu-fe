@@ -1,11 +1,12 @@
 import { Box, Button, Flex, List, Text, useDisclosure } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Appointment } from '../../models/appointment';
 import AddAppointmentModal from './AddAppointmentModal';
 import AppointmentItem from './AppointmentItem';
 import { deleteAppointment } from './appointments.helpers';
 import ConfirmModal from '../../components/ConfirmModal';
+import { isThisMonth, isThisWeek, isToday } from 'date-fns';
 interface AppointmentsListProps {
   _appointments: Appointment[];
   userId: string;
@@ -26,12 +27,48 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
   };
 
   const cancelAppointment = async (appointment: Appointment) => {
-    await deleteAppointment(appointment);
-    toast.success('Appointment cancelled successfully');
-    setAppointments(appointments.filter(a => a.id !== appointment.id));
+    try {
+      await deleteAppointment(appointment);
+      toast.success('Appointment cancelled successfully');
+      setAppointments(appointments.filter(a => a.id !== appointment.id));
+    } catch (e) {}
   };
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [appointmentMap, setAppointmentMap] = useState(
+    new Map<string, Appointment[]>()
+  );
+
+  useEffect(() => {
+    const todayAppointments = appointments.filter(a =>
+      isToday(new Date(a.startAt))
+    );
+
+    const thisWeekAppointments = appointments.filter(a => {
+      const startAt = new Date(a.startAt);
+      return isThisWeek(startAt, { weekStartsOn: 1 }) && !isToday(startAt);
+    });
+
+    const thisMonthAppointments = appointments.filter(a => {
+      const startAt = new Date(a.startAt);
+      return (
+        isThisMonth(startAt) &&
+        !isThisWeek(startAt, { weekStartsOn: 1 }) &&
+        !isToday(startAt)
+      );
+    });
+
+    const appointmentMap = new Map<string, Appointment[]>();
+
+    todayAppointments.length && appointmentMap.set('today', todayAppointments);
+    thisWeekAppointments.length &&
+      appointmentMap.set('thisWeek', thisWeekAppointments);
+    thisMonthAppointments.length &&
+      appointmentMap.set('thisMonth', thisMonthAppointments);
+
+    setAppointmentMap(appointmentMap);
+  }, [appointments]);
 
   return (
     <>
@@ -55,13 +92,62 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
             Add Appointment
           </Button>
           <List marginTop={'1rem'}>
-            {appointments.map(appointment => (
-              <AppointmentItem
-                key={appointment.id}
-                appointment={appointment}
-                cancelAppointment={cancelAppointment}
-              />
-            ))}
+            {appointmentMap.has('today') ? (
+              <>
+                <Text
+                  fontSize={'xl'}
+                  fontStyle="italic"
+                  textDecoration={'underline'}
+                >
+                  Today
+                </Text>
+                {appointmentMap.get('today')?.map(appointment => (
+                  <AppointmentItem
+                    key={appointment.id}
+                    appointment={appointment}
+                    cancelAppointment={cancelAppointment}
+                  />
+                ))}
+              </>
+            ) : null}
+
+            {appointmentMap.has('thisWeek') ? (
+              <>
+                <Text
+                  fontSize={'xl'}
+                  fontStyle="italic"
+                  textDecoration={'underline'}
+                >
+                  This Week
+                </Text>
+                {appointmentMap.get('thisWeek')?.map(appointment => (
+                  <AppointmentItem
+                    key={appointment.id}
+                    appointment={appointment}
+                    cancelAppointment={cancelAppointment}
+                  />
+                ))}
+              </>
+            ) : null}
+
+            {appointmentMap.has('thisMonth') ? (
+              <>
+                <Text
+                  fontSize={'xl'}
+                  fontStyle="italic"
+                  textDecoration={'underline'}
+                >
+                  This Month
+                </Text>
+                {appointmentMap.get('thisMonth')?.map(appointment => (
+                  <AppointmentItem
+                    key={appointment.id}
+                    appointment={appointment}
+                    cancelAppointment={cancelAppointment}
+                  />
+                ))}
+              </>
+            ) : null}
           </List>
         </Flex>
       </Box>
