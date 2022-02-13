@@ -50,6 +50,9 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
 
   return (
     <>
+      <Button onClick={onOpen} w="100%" colorScheme="facebook" size="lg">
+        Add Appointment
+      </Button>
       <Box
         width={['100%', '70%', '30rem']}
         borderWidth="1px"
@@ -62,30 +65,18 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
         <Flex flexDirection="column">
           <Text fontSize={'3xl'}>My Appointments</Text>
           <hr />
-          <Button
-            style={{ marginTop: '2rem' }}
-            onClick={onOpen}
-            w="100%"
-            colorScheme="facebook"
-            size="lg"
-            mt={'0.5rem'}
-          >
-            Add Appointment
-          </Button>
-          <Box overflow={'auto'}>
-            <List marginTop={'1rem'}>
-              {Array.from(appointmentsMap.entries()).map(
-                ([period, appointments]) => (
-                  <AppointmentsForPeriod
-                    key={period}
-                    periodTitle={getPeriodTitle(period)}
-                    appointments={appointments}
-                    cancelAppointment={cancelAppointment}
-                  />
-                )
-              )}
-            </List>
-          </Box>
+          <List marginTop={'1rem'}>
+            {Array.from(appointmentsMap.entries()).map(
+              ([period, appointments]) => (
+                <AppointmentsForPeriod
+                  key={period}
+                  periodTitle={getPeriodTitle(period)}
+                  appointments={appointments}
+                  cancelAppointment={cancelAppointment}
+                />
+              )
+            )}
+          </List>
         </Flex>
       </Box>
       <AddAppointmentModal

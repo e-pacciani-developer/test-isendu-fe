@@ -33,7 +33,7 @@ const AppointmentItem: React.VFC<AppointmentItemProps> = ({
         shadow="md"
       >
         <div>
-          <Flex marginBottom={'0.5rem'} alignItems={'center'} gap={'0.5rem'}>
+          <Flex alignItems={'center'} gap={'0.5rem'}>
             <CalendarIcon />{' '}
             <Text size="md" fontWeight={'bold'}>
               {formatDates(appointment.startAt, appointment.endAt)}
@@ -42,7 +42,7 @@ const AppointmentItem: React.VFC<AppointmentItemProps> = ({
           <Text fontSize={'xl'}>{appointment.type}</Text>
           <Text fontSize={'sm'}>{appointment.notes}</Text>
         </div>
-        <Flex justifyContent="flex-end">
+        <Flex justifyContent="flex-end" style={{ marginTop: '0.5rem' }}>
           <Button colorScheme={'red'} size="xs" onClick={() => handleCancel()}>
             Cancel
           </Button>
