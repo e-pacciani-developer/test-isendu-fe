@@ -3,9 +3,12 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Appointment } from '../../models/appointment';
 import AddAppointmentModal from './AddAppointmentModal';
-import AppointmentItem from './AppointmentItem';
 import { appointmentsService } from '../../services/appointments.service';
-import { getAppointmentsMapByPeriod } from './appointments.helpers';
+import {
+  getAppointmentsMapByPeriod,
+  getPeriodTitle,
+} from './appointments.helpers';
+import AppointmentsForPeriod from './AppointmentForPeriod';
 interface AppointmentsListProps {
   _appointments: Appointment[];
   userId: string;
@@ -35,7 +38,7 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [appointmentMap, setAppointmentMap] = useState(
+  const [appointmentsMap, setAppointmentMap] = useState(
     new Map<string, Appointment[]>()
   );
 
@@ -53,6 +56,8 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
         borderRadius="lg"
         padding={'1rem 2rem'}
         bg="white"
+        overflow={'auto'}
+        style={{ marginBottom: '2rem' }}
       >
         <Flex flexDirection="column">
           <Text fontSize={'3xl'}>My Appointments</Text>
@@ -67,82 +72,20 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
           >
             Add Appointment
           </Button>
-          <List marginTop={'1rem'}>
-            {appointmentMap.has('today') ? (
-              <>
-                <Text
-                  fontSize={'xl'}
-                  fontStyle="italic"
-                  textDecoration={'underline'}
-                >
-                  Today
-                </Text>
-                {appointmentMap.get('today')?.map(appointment => (
-                  <AppointmentItem
-                    key={appointment.id}
-                    appointment={appointment}
+          <Box overflow={'auto'}>
+            <List marginTop={'1rem'}>
+              {Array.from(appointmentsMap.entries()).map(
+                ([period, appointments]) => (
+                  <AppointmentsForPeriod
+                    key={period}
+                    periodTitle={getPeriodTitle(period)}
+                    appointments={appointments}
                     cancelAppointment={cancelAppointment}
                   />
-                ))}
-              </>
-            ) : null}
-
-            {appointmentMap.has('thisWeek') ? (
-              <>
-                <Text
-                  fontSize={'xl'}
-                  fontStyle="italic"
-                  textDecoration={'underline'}
-                >
-                  This Week
-                </Text>
-                {appointmentMap.get('thisWeek')?.map(appointment => (
-                  <AppointmentItem
-                    key={appointment.id}
-                    appointment={appointment}
-                    cancelAppointment={cancelAppointment}
-                  />
-                ))}
-              </>
-            ) : null}
-
-            {appointmentMap.has('thisMonth') ? (
-              <>
-                <Text
-                  fontSize={'xl'}
-                  fontStyle="italic"
-                  textDecoration={'underline'}
-                >
-                  This Month
-                </Text>
-                {appointmentMap.get('thisMonth')?.map(appointment => (
-                  <AppointmentItem
-                    key={appointment.id}
-                    appointment={appointment}
-                    cancelAppointment={cancelAppointment}
-                  />
-                ))}
-              </>
-            ) : null}
-            {appointmentMap.has('next') ? (
-              <>
-                <Text
-                  fontSize={'xl'}
-                  fontStyle="italic"
-                  textDecoration={'underline'}
-                >
-                  Next Months
-                </Text>
-                {appointmentMap.get('next')?.map(appointment => (
-                  <AppointmentItem
-                    key={appointment.id}
-                    appointment={appointment}
-                    cancelAppointment={cancelAppointment}
-                  />
-                ))}
-              </>
-            ) : null}
-          </List>
+                )
+              )}
+            </List>
+          </Box>
         </Flex>
       </Box>
       <AddAppointmentModal

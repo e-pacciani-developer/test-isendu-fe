@@ -55,6 +55,7 @@ const LoginPage: React.VFC<
           borderWidth="1px"
           borderRadius="lg"
           padding={'2rem'}
+          shadow="md"
           bg="white"
         >
           <Text

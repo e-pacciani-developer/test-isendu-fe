@@ -13,7 +13,7 @@ const SignIn: React.VFC<SignInProps> = ({ users, signInAs }) => {
 
   return (
     <Flex flexDir={'column'} gap="1rem" alignItems={'center'}>
-      <Text fontSize={'2xl'}>Log in as:</Text>
+      <Text fontSize={'2xl'}>Sign in as:</Text>
       <Select
         placeholder="Select an option"
         background="white"
@@ -26,7 +26,7 @@ const SignIn: React.VFC<SignInProps> = ({ users, signInAs }) => {
         ))}
       </Select>
       <Button
-        colorScheme={'blue'}
+        colorScheme={'facebook'}
         marginTop="2rem"
         width={'100%'}
         disabled={!selectedUserId}

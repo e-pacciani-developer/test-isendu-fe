@@ -60,6 +60,21 @@ export function getAppointmentsMapByPeriod(
   return appointmentsMapByPeriod;
 }
 
+export function getPeriodTitle(key: string): string {
+  switch (key) {
+    case 'today':
+      return 'Today';
+    case 'thisWeek':
+      return 'This Week';
+    case 'thisMonth':
+      return 'This Month';
+    case 'next':
+      return 'Next Months';
+    default:
+      return '';
+  }
+}
+
 function getPeriod(appointment: Appointment): string {
   const appointmentDate = new Date(appointment.startAt);
 
