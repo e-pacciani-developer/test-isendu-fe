@@ -1,8 +1,10 @@
-import { Container, Flex } from '@chakra-ui/react';
+import { Box, Button, Container, Flex } from '@chakra-ui/react';
+import Header from './Header';
 const Layout: React.FC = ({ children }) => {
   return (
-    <Container minH={'100vh'} bg="cyan.200" minW={'100vw'}>
-      <Flex justify="center" align="center" height="100vh">
+    <Container minH={'100vh'} bg="gray.200" minW={'100vw'} padding="0">
+      <Header />
+      <Flex justify="center" align="center" height={'calc(100vh - 80px)'}>
         {children}
       </Flex>
     </Container>

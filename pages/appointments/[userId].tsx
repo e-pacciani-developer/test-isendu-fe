@@ -1,4 +1,6 @@
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import { ReactElement } from 'react';
+import Layout from '../../components/layout';
 import AppointmentsList from './AppointmentList';
 import { getUserAppointments } from './appointments.helpers';
 
@@ -14,15 +16,20 @@ export const getServerSideProps = async (
   };
 };
 
-const Appointments: React.VFC<
-  InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ userId, appointments }) => {
+const Appointments = ({
+  userId,
+  appointments,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
     <AppointmentsList
       _appointments={appointments.data}
       userId={userId}
     ></AppointmentsList>
   );
+};
+
+Appointments.getLayout = function getLayout(page: ReactElement) {
+  return <Layout>{page}</Layout>;
 };
 
 export default Appointments;

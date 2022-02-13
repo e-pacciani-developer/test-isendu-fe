@@ -5,8 +5,18 @@ import Layout from '../components/layout';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { NextPage } from 'next';
+import { ReactElement, ReactNode } from 'react';
 
-function MyApp({ Component, pageProps }: AppProps) {
+type NextPageWithLayout = NextPage & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   axios.interceptors.response.use(
     function (response) {
       // Any status code that lie within the range of 2xx cause this function to trigger
@@ -29,13 +39,10 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
   );
 
+  const getLayout = Component.getLayout ?? (page => page);
+
   return (
-    <ChakraProvider>
-      <Layout>
-        <Component {...pageProps} />
-        <ToastContainer />
-      </Layout>
-    </ChakraProvider>
+    <ChakraProvider>{getLayout(<Component {...pageProps} />)}</ChakraProvider>
   );
 }
 
