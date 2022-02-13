@@ -13,9 +13,11 @@ import { useAtom } from 'jotai';
 import { InferGetServerSidePropsType } from 'next';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { User } from '../../models/user';
 import { usersService } from '../../services/user.service';
 import { currentUserAtom } from '../../store';
 import SignIn from './SignIn';
+import SignUp from './SignUp';
 
 export const getServerSideProps = async () => {
   const users = await usersService.getAllUsers();
@@ -31,13 +33,18 @@ const LoginPage: React.VFC<
 
   const [, setCurrentUser] = useAtom(currentUserAtom);
 
-  const signInAs = (selectedUserId: string) => {
-    const currentUser = users.find(user => user.id === selectedUserId);
+  const signInAs = (userId: string) => {
+    const currentUser = users.find(user => user.id === userId);
 
     if (currentUser) {
       setCurrentUser(currentUser);
-      router.push(`/appointments/${selectedUserId}`);
+      router.push(`/appointments/${userId}`);
     }
+  };
+
+  const signInAfterSignUp = (user: User) => {
+    setCurrentUser(user);
+    router.push(`/appointments/${user.id}`);
   };
 
   return (
@@ -69,7 +76,7 @@ const LoginPage: React.VFC<
                 <SignIn users={users} signInAs={signInAs} />
               </TabPanel>
               <TabPanel>
-                <p>two!</p>
+                <SignUp signInAfterSignUp={signInAfterSignUp} />
               </TabPanel>
             </TabPanels>
           </Tabs>

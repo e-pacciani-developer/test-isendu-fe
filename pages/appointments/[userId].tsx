@@ -40,7 +40,7 @@ const Appointments = ({
 
   return (
     <VStack>
-      <Text fontSize={'2xl'} marginBottom="2">
+      <Text fontSize={'2xl'} marginBottom="2rem">
         Welcome back, {user.name}{' '}
       </Text>
       <AppointmentsList

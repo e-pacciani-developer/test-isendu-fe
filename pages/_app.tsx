@@ -33,7 +33,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         theme: 'colored',
       });
 
-      return Promise.reject(error.response.data.error);
+      return Promise.reject(error.response);
     }
   );
 
