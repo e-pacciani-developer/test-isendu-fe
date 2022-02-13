@@ -33,14 +33,17 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         theme: 'colored',
       });
 
-      return Promise.reject(error);
+      return Promise.reject(error.response.data.error);
     }
   );
 
   const getLayout = Component.getLayout ?? (page => page);
 
   return (
-    <ChakraProvider>{getLayout(<Component {...pageProps} />)}</ChakraProvider>
+    <ChakraProvider>
+      {getLayout(<Component {...pageProps} />)}
+      <ToastContainer />
+    </ChakraProvider>
   );
 }
 

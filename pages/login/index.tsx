@@ -9,12 +9,16 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
+import { useAtom } from 'jotai';
 import { InferGetServerSidePropsType } from 'next';
-import { getAllUsers } from './login.helpers';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { usersService } from '../../services/user.service';
+import { currentUserAtom } from '../../store';
 import SignIn from './SignIn';
 
 export const getServerSideProps = async () => {
-  const users = await getAllUsers();
+  const users = await usersService.getAllUsers();
   return {
     props: { users },
   };
@@ -23,6 +27,19 @@ export const getServerSideProps = async () => {
 const LoginPage: React.VFC<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ users }) => {
+  const router = useRouter();
+
+  const [, setCurrentUser] = useAtom(currentUserAtom);
+
+  const signInAs = (selectedUserId: string) => {
+    const currentUser = users.find(user => user.id === selectedUserId);
+
+    if (currentUser) {
+      setCurrentUser(currentUser);
+      router.push(`/appointments/${selectedUserId}`);
+    }
+  };
+
   return (
     <Container minH={'100vh'} bg="gray.200" minW={'100vw'} padding="0">
       <Flex justify="center" align="center" height={'100vh'}>
@@ -49,7 +66,7 @@ const LoginPage: React.VFC<
 
             <TabPanels>
               <TabPanel>
-                <SignIn users={users} />
+                <SignIn users={users} signInAs={signInAs} />
               </TabPanel>
               <TabPanel>
                 <p>two!</p>

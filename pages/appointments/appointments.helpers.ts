@@ -1,5 +1,7 @@
-import { format, isThisMonth, isThisWeek, isToday } from 'date-fns';
+import { format, isBefore, isThisMonth, isThisWeek, isToday } from 'date-fns';
+import { toast } from 'react-toastify';
 import { Appointment } from '../../models/appointment';
+import { AddAppointmentFormFields } from './AddAppointmentModal';
 
 export function formatDates(
   startAt: Date | string,
@@ -26,6 +28,20 @@ export function generateStartAndEndDates(
   return [startAt, endAt];
 }
 
+export function formIsValid(startAt: Date, endAt: Date): boolean {
+  if (isBefore(new Date(startAt), new Date())) {
+    toast.warn('Date must be in the future');
+    return false;
+  }
+
+  if (isBefore(new Date(endAt), new Date(startAt))) {
+    toast.warn('End date must be after start date');
+    return false;
+  }
+
+  return true;
+}
+
 export function getAppointmentsMapByPeriod(
   appointments: Appointment[]
 ): Map<string, Appointment[]> {
@@ -45,17 +61,19 @@ export function getAppointmentsMapByPeriod(
 }
 
 function getPeriod(appointment: Appointment): string {
-  if (isToday(appointment.startAt)) {
+  const appointmentDate = new Date(appointment.startAt);
+
+  if (isToday(appointmentDate)) {
     return 'today';
   }
 
-  if (isThisWeek(appointment.startAt)) {
+  if (isThisWeek(appointmentDate, { weekStartsOn: 1 })) {
     return 'thisWeek';
   }
 
-  if (isThisMonth(appointment.startAt)) {
+  if (isThisMonth(appointmentDate)) {
     return 'thisMonth';
   }
 
-  return 'Next';
+  return 'next';
 }

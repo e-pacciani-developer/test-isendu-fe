@@ -51,13 +51,14 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
         width={['100%', '70%', '30rem']}
         borderWidth="1px"
         borderRadius="lg"
-        padding={'2rem'}
+        padding={'1rem 2rem'}
         bg="white"
       >
         <Flex flexDirection="column">
           <Text fontSize={'3xl'}>My Appointments</Text>
           <hr />
           <Button
+            style={{ marginTop: '2rem' }}
             onClick={onOpen}
             w="100%"
             colorScheme="facebook"
@@ -115,6 +116,24 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
                   This Month
                 </Text>
                 {appointmentMap.get('thisMonth')?.map(appointment => (
+                  <AppointmentItem
+                    key={appointment.id}
+                    appointment={appointment}
+                    cancelAppointment={cancelAppointment}
+                  />
+                ))}
+              </>
+            ) : null}
+            {appointmentMap.has('next') ? (
+              <>
+                <Text
+                  fontSize={'xl'}
+                  fontStyle="italic"
+                  textDecoration={'underline'}
+                >
+                  Next Months
+                </Text>
+                {appointmentMap.get('next')?.map(appointment => (
                   <AppointmentItem
                     key={appointment.id}
                     appointment={appointment}

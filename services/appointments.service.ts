@@ -27,18 +27,15 @@ async function getUserAppointments(
 
 async function createAppointment(
   appointment: CreateAppointmentDTO
-): Promise<Appointment | null> {
+): Promise<Appointment> {
   const response = await axios.post<Appointment>(
     `http://localhost:5000/api/appointments/${appointment.userId}`,
     appointment
   );
 
-  if (response) {
-    const newAppointment = await response.data;
-    return newAppointment;
-  }
+  const newAppointment = await response.data;
 
-  return null;
+  return newAppointment;
 }
 
 async function deleteAppointment(appointment: Appointment): Promise<boolean> {

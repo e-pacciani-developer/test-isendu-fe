@@ -1,13 +1,19 @@
+import { Text, VStack } from '@chakra-ui/react';
+import { useAtom } from 'jotai';
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import { ReactElement } from 'react';
+import { ReactElement, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import { appointmentsService } from '../../services/appointments.service';
+import { usersService } from '../../services/user.service';
+import { currentUserAtom } from '../../store';
 import AppointmentsList from './AppointmentList';
 
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const userId = context.params?.userId as string;
+
+  const user = await usersService.getUserById(userId);
 
   const appointments = await appointmentsService.getUserAppointments(
     1,
@@ -16,19 +22,32 @@ export const getServerSideProps = async (
   );
 
   return {
-    props: { userId, appointments },
+    props: { user, appointments },
   };
 };
 
 const Appointments = ({
-  userId,
+  user,
   appointments,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
+
+  useEffect(() => {
+    if (user) {
+      setCurrentUser(user);
+    }
+  }, [user, setCurrentUser, appointments]);
+
   return (
-    <AppointmentsList
-      _appointments={appointments.data}
-      userId={userId}
-    ></AppointmentsList>
+    <VStack>
+      <Text fontSize={'2xl'} marginBottom="2">
+        Welcome back, {user.name}{' '}
+      </Text>
+      <AppointmentsList
+        _appointments={appointments.data}
+        userId={user.id}
+      ></AppointmentsList>
+    </VStack>
   );
 };
 

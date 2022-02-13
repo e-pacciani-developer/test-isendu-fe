@@ -5,17 +5,11 @@ import { User } from '../../models/user';
 
 export interface SignInProps {
   users: User[];
+  signInAs: (userId: string) => void;
 }
 
-const SignIn: React.VFC<SignInProps> = ({ users }) => {
-  const router = useRouter();
+const SignIn: React.VFC<SignInProps> = ({ users, signInAs }) => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-
-  const signInAs = () => {
-    if (selectedUserId) {
-      router.push(`/appointments/${selectedUserId}`);
-    }
-  };
 
   return (
     <Flex flexDir={'column'} gap="1rem" alignItems={'center'}>
@@ -27,7 +21,7 @@ const SignIn: React.VFC<SignInProps> = ({ users }) => {
       >
         {users.map(user => (
           <option key={user.id} value={user.id}>
-            {user.name}
+            {user.name} ({user.role})
           </option>
         ))}
       </Select>
@@ -35,7 +29,8 @@ const SignIn: React.VFC<SignInProps> = ({ users }) => {
         colorScheme={'blue'}
         marginTop="2rem"
         width={'100%'}
-        onClick={() => signInAs()}
+        disabled={!selectedUserId}
+        onClick={() => selectedUserId && signInAs(selectedUserId)}
       >
         SIGN IN
       </Button>

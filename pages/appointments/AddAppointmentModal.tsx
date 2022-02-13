@@ -19,6 +19,7 @@ import { useForm } from 'react-hook-form';
 import { VisitTypes } from '../../constants/visit-type';
 import { Appointment, CreateAppointmentDTO } from '../../models/appointment';
 import {
+  formIsValid,
   generateStartAndEndDates,
   setCurrentDate,
 } from './appointments.helpers';
@@ -32,7 +33,7 @@ interface AddAppointmentProps {
   userId: string;
 }
 
-interface AddAppointmentFormFields {
+export interface AddAppointmentFormFields {
   date: string;
   startTime: string;
   endTime: string;
@@ -56,6 +57,10 @@ const AddAppointmentModal: React.VFC<AddAppointmentProps> = ({
       formData.endTime
     );
 
+    if (!formIsValid(startAt, endAt)) {
+      return;
+    }
+
     const appointment: CreateAppointmentDTO = {
       startAt,
       endAt,
@@ -64,16 +69,16 @@ const AddAppointmentModal: React.VFC<AddAppointmentProps> = ({
       notes: formData.notes,
     };
 
-    const newAppointment = await appointmentsService.createAppointment(
-      appointment
-    );
+    try {
+      const newAppointment = await appointmentsService.createAppointment(
+        appointment
+      );
 
-    if (newAppointment) {
       addNewAppointmentToList(newAppointment);
       toast.success('Appointment created successfully');
 
       onClose();
-    }
+    } catch (e) {}
   });
 
   return (
