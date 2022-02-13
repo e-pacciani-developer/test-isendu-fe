@@ -1,15 +1,19 @@
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { ReactElement } from 'react';
-import Layout from '../../components/layout';
+import Layout from '../../components/Layout';
+import { appointmentsService } from '../../services/appointments.service';
 import AppointmentsList from './AppointmentList';
-import { getUserAppointments } from './appointments.helpers';
 
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const userId = context.params?.userId as string;
 
-  const appointments = await getUserAppointments(1, 20, userId);
+  const appointments = await appointmentsService.getUserAppointments(
+    1,
+    20,
+    userId
+  );
 
   return {
     props: { userId, appointments },

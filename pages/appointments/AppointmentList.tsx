@@ -4,9 +4,8 @@ import { toast } from 'react-toastify';
 import { Appointment } from '../../models/appointment';
 import AddAppointmentModal from './AddAppointmentModal';
 import AppointmentItem from './AppointmentItem';
-import { deleteAppointment } from './appointments.helpers';
-import ConfirmModal from '../../components/ConfirmModal';
-import { isThisMonth, isThisWeek, isToday } from 'date-fns';
+import { appointmentsService } from '../../services/appointments.service';
+import { getAppointmentsMapByPeriod } from './appointments.helpers';
 interface AppointmentsListProps {
   _appointments: Appointment[];
   userId: string;
@@ -28,7 +27,7 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
 
   const cancelAppointment = async (appointment: Appointment) => {
     try {
-      await deleteAppointment(appointment);
+      await appointmentsService.deleteAppointment(appointment);
       toast.success('Appointment cancelled successfully');
       setAppointments(appointments.filter(a => a.id !== appointment.id));
     } catch (e) {}
@@ -41,33 +40,9 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
   );
 
   useEffect(() => {
-    const todayAppointments = appointments.filter(a =>
-      isToday(new Date(a.startAt))
-    );
+    const appointmentsMap = getAppointmentsMapByPeriod(appointments);
 
-    const thisWeekAppointments = appointments.filter(a => {
-      const startAt = new Date(a.startAt);
-      return isThisWeek(startAt, { weekStartsOn: 1 }) && !isToday(startAt);
-    });
-
-    const thisMonthAppointments = appointments.filter(a => {
-      const startAt = new Date(a.startAt);
-      return (
-        isThisMonth(startAt) &&
-        !isThisWeek(startAt, { weekStartsOn: 1 }) &&
-        !isToday(startAt)
-      );
-    });
-
-    const appointmentMap = new Map<string, Appointment[]>();
-
-    todayAppointments.length && appointmentMap.set('today', todayAppointments);
-    thisWeekAppointments.length &&
-      appointmentMap.set('thisWeek', thisWeekAppointments);
-    thisMonthAppointments.length &&
-      appointmentMap.set('thisMonth', thisMonthAppointments);
-
-    setAppointmentMap(appointmentMap);
+    setAppointmentMap(appointmentsMap);
   }, [appointments]);
 
   return (

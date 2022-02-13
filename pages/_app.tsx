@@ -19,8 +19,6 @@ type AppPropsWithLayout = AppProps & {
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   axios.interceptors.response.use(
     function (response) {
-      // Any status code that lie within the range of 2xx cause this function to trigger
-      // Do something with response data
       return response;
     },
     function (error) {
@@ -35,7 +33,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         theme: 'colored',
       });
 
-      return Promise.resolve(error);
+      return Promise.reject(error);
     }
   );
 

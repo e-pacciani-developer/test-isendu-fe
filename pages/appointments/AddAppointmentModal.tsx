@@ -19,11 +19,11 @@ import { useForm } from 'react-hook-form';
 import { VisitTypes } from '../../constants/visit-type';
 import { Appointment, CreateAppointmentDTO } from '../../models/appointment';
 import {
-  createAppointment,
   generateStartAndEndDates,
   setCurrentDate,
 } from './appointments.helpers';
 import { toast } from 'react-toastify';
+import { appointmentsService } from '../../services/appointments.service';
 
 interface AddAppointmentProps {
   isOpen: boolean;
@@ -64,7 +64,9 @@ const AddAppointmentModal: React.VFC<AddAppointmentProps> = ({
       notes: formData.notes,
     };
 
-    const newAppointment = await createAppointment(appointment);
+    const newAppointment = await appointmentsService.createAppointment(
+      appointment
+    );
 
     if (newAppointment) {
       addNewAppointmentToList(newAppointment);
