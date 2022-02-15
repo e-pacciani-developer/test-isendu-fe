@@ -1,5 +1,11 @@
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { Calendar, dateFnsLocalizer, SlotInfo } from 'react-big-calendar';
+import {
+  Calendar,
+  dateFnsLocalizer,
+  NavigateAction,
+  SlotInfo,
+  View,
+} from 'react-big-calendar';
 import format from 'date-fns/format';
 import parse from 'date-fns/parse';
 import startOfWeek from 'date-fns/startOfWeek';
@@ -21,6 +27,7 @@ const localizer = dateFnsLocalizer({
 interface CalendarPageProps {
   events: Event[];
   editAppointment: (appointment: AppointmentWithUser) => void;
+  getMonthsEvents: (date: Date) => void;
 }
 
 interface Event {
@@ -33,6 +40,7 @@ interface Event {
 const CalendarPage: React.VFC<CalendarPageProps> = ({
   events,
   editAppointment,
+  getMonthsEvents,
 }) => (
   <div>
     <Calendar
@@ -42,6 +50,9 @@ const CalendarPage: React.VFC<CalendarPageProps> = ({
       endAccessor="end"
       onSelectEvent={(event: Event) => editAppointment(event.resource!)}
       style={{ height: 620 }}
+      onNavigate={(newDate: Date) => {
+        getMonthsEvents(newDate);
+      }}
       selectable={true}
     />
   </div>

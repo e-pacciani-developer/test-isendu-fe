@@ -12,36 +12,19 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { AppointmentWithUser } from '../../models/appointment';
 import { appointmentsService } from '../../services/appointments.service';
+import { sortAppointmentsByStartTime } from '../../utils/dates.utils';
 import { formatDates } from '../appointments/appointments.helpers';
 
 interface AppointmentsTableProps {
-  userId: string;
   editAppointment: (appointment: AppointmentWithUser) => void;
   confirmAppointmentDelete: (appointment: AppointmentWithUser) => void;
+  appointments: AppointmentWithUser[];
 }
 
 const AppointmentsTable: React.VFC<AppointmentsTableProps> = ({
-  userId,
-  editAppointment,
+  appointments,
   confirmAppointmentDelete,
 }) => {
-  const [appointments, setAppointments] = useState<AppointmentWithUser[]>([]);
-
-  const getAppointments = useCallback(async () => {
-    // TODO implement true pagination
-    const appointmentsList = await appointmentsService.getUserAppointments(
-      1,
-      30,
-      userId,
-      'ADMIN'
-    );
-    setAppointments(appointmentsList.data);
-  }, [userId]);
-
-  useEffect(() => {
-    getAppointments();
-  }, [getAppointments]);
-
   return (
     <Table variant="simple">
       <Thead>

@@ -147,6 +147,9 @@ const EditAdminAppointmentModal: React.VFC<AddAdminAppointmentProps> = ({
       });
 
       setAppointment(selectedAppointment);
+    } else {
+      reset({});
+      setAppointment({} as Appointment);
     }
   }, [selectedAppointment, setAppointment, reset]);
 

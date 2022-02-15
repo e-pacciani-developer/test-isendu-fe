@@ -3,6 +3,7 @@ import {
   GetAppointmentsDTO,
   CreateAppointmentDTO,
   Appointment,
+  AppointmentWithUser,
 } from '../models/appointment';
 
 export const appointmentsService = {
@@ -10,7 +11,7 @@ export const appointmentsService = {
   createAppointment,
   updateAppointment,
   deleteAppointment,
-  getAppointmntsForCalendar,
+  getAppointmentsForCalendar,
 };
 
 async function getUserAppointments(
@@ -27,12 +28,12 @@ async function getUserAppointments(
   return appointments;
 }
 
-async function getAppointmntsForCalendar(
+async function getAppointmentsForCalendar(
   from: Date,
   to: Date
-): Promise<Appointment[]> {
-  const response = await axios.get<Appointment[]>(
-    `http://localhost:5000/api/appointments/calendar?from=${from}&to=${to}`
+): Promise<AppointmentWithUser[]> {
+  const response = await axios.get<AppointmentWithUser[]>(
+    `http://localhost:5000/api/appointments/calendar?from=${from.toISOString()}&to=${to.toISOString()}`
   );
 
   const appointments = await response.data;

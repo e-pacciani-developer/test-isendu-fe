@@ -1,25 +1,17 @@
-import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
   Flex,
-  IconButton,
   Tab,
-  Table,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
-  Tbody,
-  Td,
   Text,
-  Th,
-  Thead,
-  Tr,
   useDisclosure,
 } from '@chakra-ui/react';
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import { ReactElement, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import ConfirmModal from '../../components/ConfirmModal';
 import Layout from '../../components/Layout';
@@ -30,9 +22,6 @@ import {
   sortAppointmentsByStartTime,
   toCalendarEvent,
 } from '../../utils/dates.utils';
-import { formatDates } from '../appointments/appointments.helpers';
-import SignIn from '../login/SignIn';
-import SignUp from '../login/SignUp';
 import AppointmentsTable from './AppointmentsTable';
 import MyCalendar from './Calendar';
 import EditAdminAppointmentModal from './EditAdminAppointmentModal';
@@ -53,15 +42,17 @@ export const getServerSideProps = async (
     };
   }
 
-  const appointments = await appointmentsService.getUserAppointments(
-    1,
-    30,
-    userId,
-    user.role
+  const today = new Date();
+  const start = new Date(today.getFullYear(), today.getMonth(), 1);
+  const end = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+  const appointments = await appointmentsService.getAppointmentsForCalendar(
+    start,
+    end
   );
 
   return {
-    props: { appointmentsList: appointments.data, userId },
+    props: { appointmentsList: appointments, userId },
   };
 };
 
@@ -73,6 +64,10 @@ const AdminAppointmentsList = ({
     useState<AppointmentWithUser | null>(null);
   const [appointments, setAppointments] =
     useState<AppointmentWithUser[]>(appointmentsList);
+  const [listAppointments, setListAppointments] = useState<
+    AppointmentWithUser[]
+  >([]);
+  const [tabIndex, setTabIndex] = useState(0);
 
   const {
     isOpen: isEditOpen,
@@ -90,9 +85,41 @@ const AdminAppointmentsList = ({
     onEditOpen();
   };
 
+  const getListAppointments = useCallback(async () => {
+    const appointmentsList = await appointmentsService.getUserAppointments(
+      1,
+      30,
+      userId,
+      'ADMIN'
+    );
+    setListAppointments(appointmentsList.data);
+  }, [userId]);
+
+  useEffect(() => {
+    if (tabIndex === 1) {
+      getListAppointments();
+    }
+  }, [tabIndex, getListAppointments]);
+
+  const getMonthsEvents = async (date: Date) => {
+    const start = new Date(date.getFullYear(), date.getMonth(), 1);
+    const end = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+
+    const appointments = await appointmentsService.getAppointmentsForCalendar(
+      start,
+      end
+    );
+
+    setAppointments(appointments);
+  };
+
   const addAppointmentToList = (appointment: AppointmentWithUser) => {
     setAppointments(
       [...appointments, appointment].sort(sortAppointmentsByStartTime)
+    );
+
+    setListAppointments(
+      [...listAppointments, appointment].sort(sortAppointmentsByStartTime)
     );
   };
 
@@ -102,7 +129,7 @@ const AdminAppointmentsList = ({
   };
 
   const updateAppointmentsList = (appointment: AppointmentWithUser) => {
-    const updatedAppointments = appointments
+    const updatedCalendarAppointments = appointments
       .map(u => {
         if (u.id === appointment.id) {
           return appointment;
@@ -110,7 +137,18 @@ const AdminAppointmentsList = ({
         return u;
       })
       .sort(sortAppointmentsByStartTime);
-    setAppointments(updatedAppointments);
+
+    const updatedListAppointments = listAppointments
+      .map(u => {
+        if (u.id === appointment.id) {
+          return appointment;
+        }
+        return u;
+      })
+      .sort(sortAppointmentsByStartTime);
+
+    setAppointments(updatedCalendarAppointments);
+    setListAppointments(updatedListAppointments);
   };
 
   const confirmAppointmentDelete = (appointment: AppointmentWithUser) => {
@@ -123,10 +161,14 @@ const AdminAppointmentsList = ({
       onConfirmClose();
       await appointmentsService.deleteAppointment(appointment.id);
       toast.success('Appointment deleted successfully');
-      const updatedAppointments = appointments
+      const updatedCalendarAppointments = appointments
         .filter(u => u.id !== appointment.id)
         .sort(sortAppointmentsByStartTime);
-      setAppointments(updatedAppointments);
+      const updatedListAppointments = listAppointments
+        .filter(u => u.id !== appointment.id)
+        .sort(sortAppointmentsByStartTime);
+      setAppointments(updatedCalendarAppointments);
+      setListAppointments(updatedListAppointments);
     } catch (e) {}
   };
 
@@ -163,7 +205,7 @@ const AdminAppointmentsList = ({
           </Button>
         </Flex>
 
-        <Tabs>
+        <Tabs onChange={index => setTabIndex(index)}>
           <TabList>
             <Tab>Calendar</Tab>
             <Tab>List</Tab>
@@ -174,13 +216,14 @@ const AdminAppointmentsList = ({
               <MyCalendar
                 events={appointments.map(toCalendarEvent)}
                 editAppointment={editAppointment}
+                getMonthsEvents={getMonthsEvents}
               />
             </TabPanel>
             <TabPanel>
               <AppointmentsTable
-                userId={userId}
                 confirmAppointmentDelete={confirmAppointmentDelete}
                 editAppointment={editAppointment}
+                appointments={listAppointments!}
               />
             </TabPanel>
           </TabPanels>
