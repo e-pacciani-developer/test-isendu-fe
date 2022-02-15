@@ -10,6 +10,7 @@ export const appointmentsService = {
   createAppointment,
   updateAppointment,
   deleteAppointment,
+  getAppointmntsForCalendar,
 };
 
 async function getUserAppointments(
@@ -21,6 +22,19 @@ async function getUserAppointments(
   const response = await axios.get<GetAppointmentsDTO>(
     `http://localhost:5000/api/appointments?page=${page}&limit=${limit}&role=${role}&userId=${userId}`
   );
+  const appointments = await response.data;
+
+  return appointments;
+}
+
+async function getAppointmntsForCalendar(
+  from: Date,
+  to: Date
+): Promise<Appointment[]> {
+  const response = await axios.get<Appointment[]>(
+    `http://localhost:5000/api/appointments/calendar?from=${from}&to=${to}`
+  );
+
   const appointments = await response.data;
 
   return appointments;

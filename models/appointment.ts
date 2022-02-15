@@ -14,6 +14,6 @@ export type AppointmentWithUser = Appointment & { user: User };
 export type CreateAppointmentDTO = Omit<Appointment, 'id'>;
 
 export interface GetAppointmentsDTO {
-  data: Appointment[];
+  data: AppointmentWithUser[];
   hasMore: boolean;
 }

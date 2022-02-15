@@ -4,7 +4,12 @@ import {
   Button,
   Flex,
   IconButton,
+  Tab,
   Table,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Tbody,
   Td,
   Text,
@@ -21,8 +26,15 @@ import Layout from '../../components/Layout';
 import { AppointmentWithUser } from '../../models/appointment';
 import { appointmentsService } from '../../services/appointments.service';
 import { usersService } from '../../services/user.service';
-import { sortAppointmentsByStartTime } from '../../utils/dates.utils';
+import {
+  sortAppointmentsByStartTime,
+  toCalendarEvent,
+} from '../../utils/dates.utils';
 import { formatDates } from '../appointments/appointments.helpers';
+import SignIn from '../login/SignIn';
+import SignUp from '../login/SignUp';
+import AppointmentsTable from './AppointmentsTable';
+import MyCalendar from './Calendar';
 import EditAdminAppointmentModal from './EditAdminAppointmentModal';
 
 export const getServerSideProps = async (
@@ -150,45 +162,29 @@ const AdminAppointmentsList = ({
             Add Appointment
           </Button>
         </Flex>
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>User</Th>
-              <Th>Date / Time</Th>
-              <Th>Type</Th>
-              <Th>Notes</Th>
-              <Th></Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {appointments.map(appointment => (
-              <Tr key={appointment.id}>
-                <Td>{appointment.user.name}</Td>
-                <Td>{formatDates(appointment.startAt, appointment.endAt)}</Td>
-                <Td>{appointment.type}</Td>
-                <Td>{appointment.notes}</Td>
-                <Td>
-                  <Flex gap={'0.5rem'}>
-                    <IconButton
-                      onClick={() => editAppointment(appointment)}
-                      size={'sm'}
-                      colorScheme="facebook"
-                      aria-label="Edit appointment"
-                      icon={<EditIcon />}
-                    />
-                    <IconButton
-                      onClick={() => confirmAppointmentDelete(appointment)}
-                      size={'sm'}
-                      colorScheme="red"
-                      aria-label="Delete appointment"
-                      icon={<DeleteIcon />}
-                    />
-                  </Flex>
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
+
+        <Tabs>
+          <TabList>
+            <Tab>Calendar</Tab>
+            <Tab>List</Tab>
+          </TabList>
+
+          <TabPanels>
+            <TabPanel>
+              <MyCalendar
+                events={appointments.map(toCalendarEvent)}
+                editAppointment={editAppointment}
+              />
+            </TabPanel>
+            <TabPanel>
+              <AppointmentsTable
+                userId={userId}
+                confirmAppointmentDelete={confirmAppointmentDelete}
+                editAppointment={editAppointment}
+              />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </Box>
       <ConfirmModal
         isOpen={isConfirmOpen}
