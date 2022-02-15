@@ -26,36 +26,43 @@ import {
   formIsValid,
   generateStartAndEndDates,
   setCurrentDate,
-} from './appointments.helpers';
+} from '../appointments/appointments.helpers';
 import { toast } from 'react-toastify';
 import { appointmentsService } from '../../services/appointments.service';
+import { User } from '../../models/user';
+import { useEffect, useState } from 'react';
+import { usersService } from '../../services/user.service';
 
-interface AddAppointmentProps {
+interface AddAdminAppointmentProps {
   isOpen: boolean;
   onClose: () => void;
-  addNewAppointmentToList: (
-    appointment: Appointment | AppointmentWithUser
-  ) => void;
-  userId: string;
+  addNewAppointmentToList: (appointment: AppointmentWithUser) => void;
+  updateAppointmentsList: (appointment: AppointmentWithUser) => void;
+  appointment: Appointment;
 }
 
-export interface AddAppointmentFormFields {
+export interface AddAdminAppointmentFormFields {
   date: string;
   startTime: string;
   endTime: string;
   type: string;
   notes: string;
+  user: User;
 }
 
-const AddAppointmentModal: React.VFC<AddAppointmentProps> = ({
+const EditAdminAppointmentModal: React.VFC<AddAdminAppointmentProps> = ({
   isOpen,
   onClose,
   addNewAppointmentToList,
-  userId,
+  updateAppointmentsList,
 }) => {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, reset } = useForm();
+  const [users, setUsers] = useState<User[]>([]);
+  const [appointment, setAppointment] = useState<Appointment>(
+    {} as Appointment
+  );
   const onSubmit = handleSubmit(async data => {
-    const formData = data as AddAppointmentFormFields;
+    const formData = data as AddAdminAppointmentFormFields;
 
     const [startAt, endAt] = generateStartAndEndDates(
       formData.date,
@@ -67,25 +74,71 @@ const AddAppointmentModal: React.VFC<AddAppointmentProps> = ({
       return;
     }
 
-    const appointment: CreateAppointmentDTO = {
-      startAt,
-      endAt,
-      userId,
-      type: formData.type,
-      notes: formData.notes,
-    };
+    if (!appointment.id) {
+      const appointmentToCreate: CreateAppointmentDTO = {
+        startAt,
+        endAt,
+        userId: formData.user.id,
+        type: formData.type,
+        notes: formData.notes,
+      };
 
-    try {
-      const newAppointment = await appointmentsService.createAppointment(
-        appointment
-      );
+      try {
+        const newAppointment = await appointmentsService.createAppointment(
+          appointmentToCreate
+        );
 
-      addNewAppointmentToList(newAppointment);
-      toast.success('Appointment created successfully');
+        const newAppointmentWithUser = {
+          ...newAppointment,
+          user: formData.user,
+        };
 
-      onClose();
-    } catch (e) {}
+        addNewAppointmentToList(newAppointmentWithUser);
+        toast.success('Appointment created successfully');
+
+        onClose();
+      } catch (e) {}
+    } else {
+      const appointmentToUpdate: Appointment = {
+        id: appointment.id,
+        startAt,
+        endAt,
+        userId: formData.user.id,
+        type: formData.type,
+        notes: formData.notes,
+      };
+
+      try {
+        await appointmentsService.updateAppointment(appointmentToUpdate);
+
+        const updatedAppointmentWithUser = {
+          ...appointmentToUpdate,
+          user: formData.user,
+        };
+
+        updateAppointmentsList(updatedAppointmentWithUser);
+        toast.success('Appointment updated successfully');
+
+        onClose();
+      } catch (e) {}
+    }
   });
+
+  const getUsers = async () => {
+    const users = await usersService.getAllUsers();
+    setUsers(users);
+  };
+
+  useEffect(() => {
+    getUsers();
+  }, []);
+
+  useEffect(() => {
+    if (appointment) {
+      reset(appointment);
+      setAppointment(appointment);
+    }
+  }, [appointment, setAppointment, reset]);
 
   return (
     <Modal
@@ -101,6 +154,24 @@ const AddAppointmentModal: React.VFC<AddAppointmentProps> = ({
         <form onSubmit={onSubmit}>
           <ModalBody>
             <VStack>
+              <FormControl>
+                <FormLabel htmlFor="user">User</FormLabel>
+                <Select
+                  placeholder="Select a user"
+                  background="white"
+                  {...register('user', {
+                    required: true,
+                    setValueAs: (value: string) =>
+                      users.find(u => u.id === value),
+                  })}
+                >
+                  {users.map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} ({user.role})
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
               <FormControl>
                 <FormLabel htmlFor="date">Date</FormLabel>
                 <Input
@@ -169,4 +240,4 @@ const AddAppointmentModal: React.VFC<AddAppointmentProps> = ({
   );
 };
 
-export default AddAppointmentModal;
+export default EditAdminAppointmentModal;

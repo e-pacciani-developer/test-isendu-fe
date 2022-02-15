@@ -1,12 +1,11 @@
-import '../styles/globals.css';
 import type { AppProps } from 'next/app';
-import { ChakraProvider, useDisclosure } from '@chakra-ui/react';
-import Layout from '../components/layout';
+import { ChakraProvider } from '@chakra-ui/react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { NextPage } from 'next';
-import { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode, useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -22,16 +21,20 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       return response;
     },
     function (error) {
-      toast.error(error.response.data.error, {
-        position: 'top-right',
-        autoClose: false,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'colored',
-      });
+      toast.error(
+        error?.response?.data?.error ||
+          'A generic error occourred, please try again later',
+        {
+          position: 'top-right',
+          autoClose: false,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'colored',
+        }
+      );
 
       return Promise.reject(error.response);
     }

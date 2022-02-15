@@ -8,6 +8,7 @@ import {
 export const appointmentsService = {
   getUserAppointments,
   createAppointment,
+  updateAppointment,
   deleteAppointment,
 };
 
@@ -38,9 +39,22 @@ async function createAppointment(
   return newAppointment;
 }
 
-async function deleteAppointment(appointment: Appointment): Promise<boolean> {
+async function updateAppointment(
+  appointment: CreateAppointmentDTO
+): Promise<Appointment> {
+  const response = await axios.put<Appointment>(
+    `http://localhost:5000/api/appointments/${appointment.userId}`,
+    appointment
+  );
+
+  const updatedAppointment = await response.data;
+
+  return updatedAppointment;
+}
+
+async function deleteAppointment(appointmentId: string): Promise<boolean> {
   const response = await axios.delete(
-    `http://localhost:5000/api/appointments/${appointment.id}`
+    `http://localhost:5000/api/appointments/${appointmentId}`
   );
 
   const data = await response.data;

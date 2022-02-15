@@ -30,7 +30,7 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
 
   const cancelAppointment = async (appointment: Appointment) => {
     try {
-      await appointmentsService.deleteAppointment(appointment);
+      await appointmentsService.deleteAppointment(appointment.id);
       toast.success('Appointment cancelled successfully');
       setAppointments(appointments.filter(a => a.id !== appointment.id));
     } catch (e) {}

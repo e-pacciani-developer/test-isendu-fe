@@ -1,3 +1,5 @@
+import { User } from './user';
+
 export interface Appointment {
   id: string;
   startAt: Date;
@@ -6,6 +8,8 @@ export interface Appointment {
   notes: string;
   type: string;
 }
+
+export type AppointmentWithUser = Appointment & { user: User };
 
 export type CreateAppointmentDTO = Omit<Appointment, 'id'>;
 
