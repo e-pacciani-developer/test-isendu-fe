@@ -38,7 +38,12 @@ const LoginPage: React.VFC<
 
     if (currentUser) {
       setCurrentUser(currentUser);
-      router.push(`/appointments/${userId}`);
+
+      const initialRoute =
+        currentUser.role === 'ADMIN'
+          ? `/admin-appointments/${currentUser.id}`
+          : `/appointments/${currentUser.id}`;
+      router.push(initialRoute);
     }
   };
 

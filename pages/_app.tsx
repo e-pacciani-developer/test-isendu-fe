@@ -21,20 +21,16 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       return response;
     },
     function (error) {
-      toast.error(
-        error?.response?.data?.error ||
-          'A generic error occourred, please try again later',
-        {
-          position: 'top-right',
-          autoClose: false,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: 'colored',
-        }
-      );
+      toast.error(error?.response?.data?.error, {
+        position: 'top-right',
+        autoClose: false,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'colored',
+      });
 
       return Promise.reject(error.response);
     }

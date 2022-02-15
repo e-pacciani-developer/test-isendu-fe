@@ -21,6 +21,7 @@ import Layout from '../../components/Layout';
 import { AppointmentWithUser } from '../../models/appointment';
 import { appointmentsService } from '../../services/appointments.service';
 import { usersService } from '../../services/user.service';
+import { sortAppointmentsByStartTime } from '../../utils/dates.utils';
 import { formatDates } from '../appointments/appointments.helpers';
 import EditAdminAppointmentModal from './EditAdminAppointmentModal';
 
@@ -57,7 +58,7 @@ const AdminAppointmentsList = ({
   userId,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const [selectedAppointment, setSelectedAppointment] =
-    useState<AppointmentWithUser>({} as AppointmentWithUser);
+    useState<AppointmentWithUser | null>(null);
   const [appointments, setAppointments] =
     useState<AppointmentWithUser[]>(appointmentsList);
 
@@ -73,12 +74,14 @@ const AdminAppointmentsList = ({
   } = useDisclosure();
 
   const addAppointment = () => {
-    setSelectedAppointment({} as AppointmentWithUser);
+    setSelectedAppointment(null);
     onEditOpen();
   };
 
   const addAppointmentToList = (appointment: AppointmentWithUser) => {
-    setAppointments([...appointments, appointment]);
+    setAppointments(
+      [...appointments, appointment].sort(sortAppointmentsByStartTime)
+    );
   };
 
   const editAppointment = (appointment: AppointmentWithUser) => {
@@ -87,12 +90,14 @@ const AdminAppointmentsList = ({
   };
 
   const updateAppointmentsList = (appointment: AppointmentWithUser) => {
-    const updatedAppointments = appointments.map(u => {
-      if (u.id === appointment.id) {
-        return appointment;
-      }
-      return u;
-    });
+    const updatedAppointments = appointments
+      .map(u => {
+        if (u.id === appointment.id) {
+          return appointment;
+        }
+        return u;
+      })
+      .sort(sortAppointmentsByStartTime);
     setAppointments(updatedAppointments);
   };
 
@@ -106,9 +111,9 @@ const AdminAppointmentsList = ({
       onConfirmClose();
       await appointmentsService.deleteAppointment(appointment.id);
       toast.success('Appointment deleted successfully');
-      const updatedAppointments = appointments.filter(
-        u => u.id !== appointment.id
-      );
+      const updatedAppointments = appointments
+        .filter(u => u.id !== appointment.id)
+        .sort(sortAppointmentsByStartTime);
       setAppointments(updatedAppointments);
     } catch (e) {}
   };
@@ -132,7 +137,7 @@ const AdminAppointmentsList = ({
           gap={'0.5rem'}
         >
           <Text fontSize={'2xl'} textAlign="center">
-            Aappointments
+            Appointments
           </Text>
 
           <Button
@@ -189,13 +194,14 @@ const AdminAppointmentsList = ({
         isOpen={isConfirmOpen}
         onClose={onConfirmClose}
         message="Do you want to delete this appointment?"
-        confirmFn={() => deleteAppointment(selectedAppointment)}
+        confirmFn={() => deleteAppointment(selectedAppointment!)}
       />
       <EditAdminAppointmentModal
         isOpen={isEditOpen}
         onClose={onEditClose}
         addNewAppointmentToList={addAppointmentToList}
         updateAppointmentsList={updateAppointmentsList}
+        selectedAppointment={selectedAppointment}
       />
     </>
   );

@@ -40,10 +40,10 @@ async function createAppointment(
 }
 
 async function updateAppointment(
-  appointment: CreateAppointmentDTO
+  appointment: Appointment
 ): Promise<Appointment> {
   const response = await axios.put<Appointment>(
-    `http://localhost:5000/api/appointments/${appointment.userId}`,
+    `http://localhost:5000/api/appointments/${appointment.id}`,
     appointment
   );
 

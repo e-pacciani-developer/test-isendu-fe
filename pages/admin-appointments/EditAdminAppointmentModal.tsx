@@ -32,13 +32,14 @@ import { appointmentsService } from '../../services/appointments.service';
 import { User } from '../../models/user';
 import { useEffect, useState } from 'react';
 import { usersService } from '../../services/user.service';
+import { format } from 'date-fns';
 
 interface AddAdminAppointmentProps {
   isOpen: boolean;
   onClose: () => void;
   addNewAppointmentToList: (appointment: AppointmentWithUser) => void;
   updateAppointmentsList: (appointment: AppointmentWithUser) => void;
-  appointment: Appointment;
+  selectedAppointment: Appointment | null;
 }
 
 export interface AddAdminAppointmentFormFields {
@@ -55,11 +56,12 @@ const EditAdminAppointmentModal: React.VFC<AddAdminAppointmentProps> = ({
   onClose,
   addNewAppointmentToList,
   updateAppointmentsList,
+  selectedAppointment,
 }) => {
   const { register, handleSubmit, reset } = useForm();
   const [users, setUsers] = useState<User[]>([]);
-  const [appointment, setAppointment] = useState<Appointment>(
-    {} as Appointment
+  const [appointment, setAppointment] = useState<Appointment | null>(
+    selectedAppointment
   );
   const onSubmit = handleSubmit(async data => {
     const formData = data as AddAdminAppointmentFormFields;
@@ -74,7 +76,7 @@ const EditAdminAppointmentModal: React.VFC<AddAdminAppointmentProps> = ({
       return;
     }
 
-    if (!appointment.id) {
+    if (!appointment?.id) {
       const appointmentToCreate: CreateAppointmentDTO = {
         startAt,
         endAt,
@@ -134,11 +136,19 @@ const EditAdminAppointmentModal: React.VFC<AddAdminAppointmentProps> = ({
   }, []);
 
   useEffect(() => {
-    if (appointment) {
-      reset(appointment);
-      setAppointment(appointment);
+    if (selectedAppointment) {
+      reset({
+        startTime: format(new Date(selectedAppointment.startAt), 'HH:mm'),
+        endTime: format(new Date(selectedAppointment.endAt), 'HH:mm'),
+        date: format(new Date(selectedAppointment.startAt), 'yyyy-MM-dd'),
+        user: selectedAppointment.userId,
+        notes: selectedAppointment.notes,
+        type: selectedAppointment.type,
+      });
+
+      setAppointment(selectedAppointment);
     }
-  }, [appointment, setAppointment, reset]);
+  }, [selectedAppointment, setAppointment, reset]);
 
   return (
     <Modal
