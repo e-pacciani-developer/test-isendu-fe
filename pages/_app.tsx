@@ -20,6 +20,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       return response;
     },
     function (error) {
+      // Shows an toast containing the error message after a failed request
       toast.error(error?.response?.data?.error, {
         position: 'top-right',
         autoClose: false,
@@ -35,6 +36,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     }
   );
 
+  // Distinction between components that have a layout (headbar) and those that don't like the SignIn/SignUp form
   const getLayout = Component.getLayout ?? (page => page);
 
   return (

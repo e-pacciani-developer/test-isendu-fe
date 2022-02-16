@@ -1,8 +1,10 @@
 import { format, isBefore, isThisMonth, isThisWeek, isToday } from 'date-fns';
 import { toast } from 'react-toastify';
 import { Appointment } from '../../models/appointment';
-import { AddAppointmentFormFields } from './AddAppointmentModal';
 
+/**
+ * Takes two dates and return a string formatted as dd/MM/yyyy HH:mm1 - HH:mm2
+ */
 export function formatDates(
   startAt: Date | string,
   endAt: Date | string
@@ -13,10 +15,16 @@ export function formatDates(
   )}`;
 }
 
+/**
+ * Returns the current date formatted as yyyy-MM-dd
+ */
 export function setCurrentDate(): string {
   return format(new Date(), 'yyyy-MM-dd');
 }
 
+/**
+ * Takes a date formatted as yyyy-MM-dd and two times formatted as HH:mm and returns a touple containing the same date with the two times
+ */
 export function generateStartAndEndDates(
   date: string,
   startTime: string,
@@ -28,6 +36,9 @@ export function generateStartAndEndDates(
   return [startAt, endAt];
 }
 
+/**
+ * Validates the appoitnment forms and returns the validation result
+ */
 export function formIsValid(startAt: Date, endAt: Date): boolean {
   if (isBefore(new Date(startAt), new Date())) {
     toast.warn('Date must be in the future');
@@ -42,6 +53,9 @@ export function formIsValid(startAt: Date, endAt: Date): boolean {
   return true;
 }
 
+/**
+ * Generates a map with the appointments grouped by period (today, thisWeek, thisMonth, next)
+ */
 export function getAppointmentsMapByPeriod(
   appointments: Appointment[]
 ): Map<string, Appointment[]> {
@@ -60,6 +74,9 @@ export function getAppointmentsMapByPeriod(
   return appointmentsMapByPeriod;
 }
 
+/**
+ * Returns the period description for the given period
+ */
 export function getPeriodTitle(key: string): string {
   switch (key) {
     case 'today':
@@ -75,6 +92,9 @@ export function getPeriodTitle(key: string): string {
   }
 }
 
+/**
+ * Returns the period code for the given appointment by checking if the appointment is today, this week or this month, if not returns 'next'
+ */
 function getPeriod(appointment: Appointment): string {
   const appointmentDate = new Date(appointment.startAt);
 

@@ -8,15 +8,13 @@ import { currentUserAtom } from '../store';
 const Header: React.VFC = () => {
   const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
   const [isAdmin, setIsAdmin] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    console.log(currentUser);
     if (currentUser) {
       setIsAdmin(currentUser.role === 'ADMIN');
     }
   }, [currentUser]);
-
-  const router = useRouter();
 
   const goToUsersList = () => {
     router.push(`/users/${currentUser?.id}`);

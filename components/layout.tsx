@@ -1,4 +1,4 @@
-import { Box, Button, Container, Flex } from '@chakra-ui/react';
+import { Container, Flex } from '@chakra-ui/react';
 import Header from './Header';
 const Layout: React.FC = ({ children }) => {
   return (

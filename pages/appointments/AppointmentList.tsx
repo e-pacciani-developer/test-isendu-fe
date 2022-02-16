@@ -9,6 +9,7 @@ import {
   getPeriodTitle,
 } from './appointments.helpers';
 import AppointmentsForPeriod from './AppointmentForPeriod';
+import { sortAppointmentsByStartTime } from '../../utils/dates.utils';
 interface AppointmentsListProps {
   _appointments: Appointment[];
   userId: string;
@@ -20,14 +21,18 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
 }) => {
   const [appointments, setAppointments] = useState(_appointments);
 
+  /**
+   * Adds the appointment created in the modal to the list of appointments, then sorts the list by the start date
+   */
   const addNewAppointmentToList = (appointment: Appointment) => {
     setAppointments(
-      [...appointments, appointment].sort(
-        (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
-      )
+      [...appointments, appointment].sort(sortAppointmentsByStartTime)
     );
   };
 
+  /**
+   * Cancels the selected appointment and removes it from the list
+   */
   const cancelAppointment = async (appointment: Appointment) => {
     try {
       await appointmentsService.deleteAppointment(appointment.id);
@@ -36,8 +41,12 @@ const AppointmentsList: React.VFC<AppointmentsListProps> = ({
     } catch (e) {}
   };
 
+  // Hooks for the modal
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  /**
+   * A map of appointments grouped by period ('today', 'thisWeek', 'thisMonth', 'next')
+   */
   const [appointmentsMap, setAppointmentMap] = useState(
     new Map<string, Appointment[]>()
   );

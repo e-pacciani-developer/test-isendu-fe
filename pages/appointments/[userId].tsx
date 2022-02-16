@@ -13,8 +13,10 @@ export const getServerSideProps = async (
 ) => {
   const userId = context.params?.userId as string;
 
+  // Fetching the user data to show the name in the header and for filtering appointments
   const user = await usersService.getUserById(userId);
 
+  // Fetching the appointments to show in the page
   const appointments = await appointmentsService.getUserAppointments(
     1,
     20,

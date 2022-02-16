@@ -33,6 +33,10 @@ const LoginPage: React.VFC<
 
   const [, setCurrentUser] = useAtom(currentUserAtom);
 
+  /**
+   * Find the user object selected in the signIn form and set it as the current user. Then navigates to the appointments list
+   * selecting the user or the admin view depending on the user role.
+   */
   const signInAs = (userId: string) => {
     const currentUser = users.find(user => user.id === userId);
 
@@ -47,6 +51,9 @@ const LoginPage: React.VFC<
     }
   };
 
+  /**
+   * Sets the current user in the store then navigates to the 'USER' view of the appointments.
+   */
   const signInAfterSignUp = (user: User) => {
     setCurrentUser(user);
     router.push(`/appointments/${user.id}`);

@@ -16,6 +16,10 @@ interface SignUpProps {
 
 const SignUp: React.VFC<SignUpProps> = ({ signInAfterSignUp }) => {
   const { register, handleSubmit } = useForm();
+
+  /**
+   * Creates the user and calls the callback to sign in after user creation
+   */
   const onSubmit = handleSubmit(async data => {
     const formData = data as User;
 

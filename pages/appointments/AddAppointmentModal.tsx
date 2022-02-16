@@ -54,6 +54,10 @@ const AddAppointmentModal: React.VFC<AddAppointmentProps> = ({
   userId,
 }) => {
   const { register, handleSubmit } = useForm();
+
+  /**
+   * Validates the form and creates a new appointment
+   */
   const onSubmit = handleSubmit(async data => {
     const formData = data as AddAppointmentFormFields;
 
