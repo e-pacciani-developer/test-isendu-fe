@@ -162,7 +162,7 @@ const EditAdminAppointmentModal: React.VFC<AddAdminAppointmentProps> = ({
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Add Appointment</ModalHeader>
+        <ModalHeader>Edit Appointment</ModalHeader>
         <ModalCloseButton />
         <form onSubmit={onSubmit}>
           <ModalBody>

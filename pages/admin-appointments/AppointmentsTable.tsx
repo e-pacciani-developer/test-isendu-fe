@@ -1,18 +1,15 @@
-import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import {
-  Table,
-  Thead,
-  Tr,
-  Th,
-  Tbody,
-  Td,
   Flex,
   IconButton,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useState } from 'react';
 import { AppointmentWithUser } from '../../models/appointment';
-import { appointmentsService } from '../../services/appointments.service';
-import { sortAppointmentsByStartTime } from '../../utils/dates.utils';
 import { formatDates } from '../appointments/appointments.helpers';
 
 interface AppointmentsTableProps {
@@ -23,6 +20,7 @@ interface AppointmentsTableProps {
 
 const AppointmentsTable: React.VFC<AppointmentsTableProps> = ({
   appointments,
+  editAppointment,
   confirmAppointmentDelete,
 }) => {
   return (

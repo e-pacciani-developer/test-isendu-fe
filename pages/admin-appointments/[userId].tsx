@@ -14,7 +14,7 @@ import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import ConfirmModal from '../../components/ConfirmModal';
-import Layout from '../../components/Layout';
+import Layout from '../../components/layout';
 import { AppointmentWithUser } from '../../models/appointment';
 import { appointmentsService } from '../../services/appointments.service';
 import { usersService } from '../../services/user.service';
@@ -31,6 +31,7 @@ export const getServerSideProps = async (
 ) => {
   const userId = context.params?.userId as string;
 
+  // This route is protected, so we need to check if the user has admin privileges
   const user = await usersService.getUserById(userId);
 
   if (user.role !== 'ADMIN') {
@@ -42,6 +43,7 @@ export const getServerSideProps = async (
     };
   }
 
+  // We land in the calendar tab of the page so we need to get the appointments for the current month
   const today = new Date();
   const start = new Date(today.getFullYear(), today.getMonth(), 1);
   const end = new Date(today.getFullYear(), today.getMonth() + 1, 1);
@@ -60,31 +62,59 @@ const AdminAppointmentsList = ({
   appointmentsList,
   userId,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  /**
+   * The selected appointment that will be set to edit in the modal
+   */
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentWithUser | null>(null);
+
+  /**
+   * The list of the appointments shown in the calendar
+   */
   const [appointments, setAppointments] =
     useState<AppointmentWithUser[]>(appointmentsList);
+
+  /**
+   * The list of appoitnments shown in the table
+   */
   const [listAppointments, setListAppointments] = useState<
     AppointmentWithUser[]
   >([]);
+
+  /**
+   * The selected tab
+   */
   const [tabIndex, setTabIndex] = useState(0);
 
+  /**
+   * Hooks fot showing the edit modal
+   */
   const {
     isOpen: isEditOpen,
     onOpen: onEditOpen,
     onClose: onEditClose,
   } = useDisclosure();
+
+  /**
+   * Hooks for showing the delete confirmation modal
+   */
   const {
     isOpen: isConfirmOpen,
     onOpen: onConfirmOpen,
     onClose: onConfirmClose,
   } = useDisclosure();
 
+  /**
+   * Sets the a null appointment so that the form will be empty, and opens the modal
+   */
   const addAppointment = () => {
     setSelectedAppointment(null);
     onEditOpen();
   };
 
+  /**
+   * Retrives and sets the appointments for the list view
+   */
   const getListAppointments = useCallback(async () => {
     const appointmentsList = await appointmentsService.getUserAppointments(
       1,
@@ -95,12 +125,10 @@ const AdminAppointmentsList = ({
     setListAppointments(appointmentsList.data);
   }, [userId]);
 
-  useEffect(() => {
-    if (tabIndex === 1) {
-      getListAppointments();
-    }
-  }, [tabIndex, getListAppointments]);
-
+  /**
+   * Retrives and set the appointments shown in calendar, this function is called when we navigate in the calendar
+   * @param date The date selected in the calendar, from this date we get the month to pass to the service for filtering the appointments
+   */
   const getMonthsEvents = async (date: Date) => {
     const start = new Date(date.getFullYear(), date.getMonth(), 1);
     const end = new Date(date.getFullYear(), date.getMonth() + 1, 1);
@@ -113,6 +141,16 @@ const AdminAppointmentsList = ({
     setAppointments(appointments);
   };
 
+  useEffect(() => {
+    // When the List tab is selected, we need to get the appointments for the table
+    if (tabIndex === 1) {
+      getListAppointments();
+    }
+  }, [tabIndex, getListAppointments]);
+
+  /**
+   * Adds a new appointment to both datasets
+   */
   const addAppointmentToList = (appointment: AppointmentWithUser) => {
     setAppointments(
       [...appointments, appointment].sort(sortAppointmentsByStartTime)
@@ -123,11 +161,17 @@ const AdminAppointmentsList = ({
     );
   };
 
+  /**
+   * Sets the appointment to edit in the modal
+   */
   const editAppointment = (appointment: AppointmentWithUser) => {
     setSelectedAppointment(appointment);
     onEditOpen();
   };
 
+  /**
+   * Replaces the edited appointment in the list and calendar
+   */
   const updateAppointmentsList = (appointment: AppointmentWithUser) => {
     const updatedCalendarAppointments = appointments
       .map(u => {
@@ -151,11 +195,17 @@ const AdminAppointmentsList = ({
     setListAppointments(updatedListAppointments);
   };
 
+  /**
+   * Opens the delete confirmation modal and sets the appointment that eventually will be deleted
+   */
   const confirmAppointmentDelete = (appointment: AppointmentWithUser) => {
     setSelectedAppointment(appointment);
     onConfirmOpen();
   };
 
+  /**
+   * Deletes the selected appointment and removes it from both datasets
+   */
   const deleteAppointment = async (appointment: AppointmentWithUser) => {
     try {
       onConfirmClose();

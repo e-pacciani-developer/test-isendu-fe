@@ -4,8 +4,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { NextPage } from 'next';
-import { ReactElement, ReactNode, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { ReactElement, ReactNode } from 'react';
 
 type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
