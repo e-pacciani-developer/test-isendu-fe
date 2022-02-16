@@ -1,4 +1,4 @@
-# Test Isendu (Front end)
+# Test IsendU (Front end)
 
 This is a test project that represents a web app for managing the appointments and the user for a dental office.
 
